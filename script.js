@@ -19,139 +19,130 @@ Promise.all(
     cities = response[1];
     specializations = response[2];
 
-    // раскомментировать для проверки 2 3 4 пунктов
-    // person.forEach(p => {
-    //     console.log(getInfo.call(p))
-    // });
-    // getInfo();
+    console.log(getInfo.call(person[0].personal));
 
-    ageCheck();
-    getBackend();
-    
-    getTeam();
+    getFigmaDesigners();
 
+    findReactDev();
 
+    age18();
 
+    getBackendDev();
+
+    getDesigners();
+
+    makeTeam();
 });
 
-
-
-
-// 2 пункт - раскомментировать
-// function getInfo() {
-//     const city = cities.find(c => c.id === this.personal.locationId);
-//     return `${this.personal.firstName} ${this.personal.lastName}, ${city.name}`;
-// }
-
-// 3 пункт - раскомментировать
-// function getInfo() {
-//     let designer = specializations.find(item => item.name === 'designer');
-//     if (designer) {
-//         let result = person.filter(p => {
-//             return (p.personal.specializationId === designer.id && p.skills.some(skill => skill.name === 'Figma'));
-//         });
-//         console.log(result);
-//     }
-// }
-
-// 4 пункт - раскомментировать
-// function getInfo() {
-//     let result = person.find(p => p.skills.some(skill => skill.name === 'React'));
-//     console.log(result);
-// }
-
-
-// 5 пункт
-function ageCheck() {
-    const current = new Date();
-    person.forEach(p => {
-        let noReviewDate = p.personal.birthday;
-        let dateParts = p.personal.birthday.split('.');
-        let reviewDate = new Date(+dateParts[2], +dateParts[1] - 1, +dateParts[0]);
-
-        let age = current.getFullYear() - reviewDate.getFullYear();
-        console.log(age > 18);
-    });
-}
-
-
-// 6 пункт
-function getBackend() {
-    let city = cities.find(c => c.name === 'Москва');
-    let backend = specializations.find(s => s.name === 'backend');
-
-    let result = person
-        .filter(p => {
-            let employment = p.request.find(item => item.name === 'Тип занятости');
-
-            return (
-                p.personal.locationId === city.id &&
-                p.personal.specializationId === backend.id &&
-                employment?.value === 'Полная'
-            );
-        })
-        .sort((a, b) => {
-            let salaryA = a.request.find(item => item.name === 'Зарплата')?.value ?? 0;
-            let salaryB = b.request.find(item => item.name === 'Зарплата')?.value ?? 0;
-
-            return salaryA - salaryB;
-        });
-    console.log(result);
-}
-
-// 7 пункт
-function getDesigners() {
-    let specialization = specializations.find(s => s.name === 'designer');
-    let result = person.filter(p => {
-        const skillFigma = p.skills.some(s => s.name === 'Figma' && s.level >= 6);
-        const skillPs = p.skills.some(s => s.name === 'Photoshop' && s.level >= 6);
-        return p.personal.specializationId === specialization.id && skillFigma && skillPs;
-    });
-    console.log(result);
-}
-
-// 8 пункт
+// 2
 function getInfo() {
-    const city = cities.find(c => c.id === this.personal.locationId);
-    const specialization = specializations.find(s => s.id === this.personal.specializationId);
-    return `${this.personal.firstName} ${this.personal.lastName} — ${specialization?.name || 'unknown'} (${city?.name || 'unknown'})`;
+    let city = cities.find(item => item.id === this.locationId);
+    return `${this.firstName} ${this.lastName} ${city.name}`
 }
 
-function getBestBySkill(specializationName, skillName) {
-    const specialization = specializations.find(s => s.name === specializationName);
-    if (!specialization) {
-        return null;
-    }
+// 3
+function getFigmaDesigners() {
+    let designer = specializations.find(item => item.name === 'designer');
 
-    return person
-        .filter(p => p.personal.specializationId === specialization.id)
-        .filter(p => p.skills.some(skill => skill.name === skillName))
-        .reduce((best, current) => {
-            const currentLevel = current.skills.find(skill => skill.name === skillName)?.level ?? 0;
-            const bestLevel = best?.skills.find(skill => skill.name === skillName)?.level ?? -1;
-            return currentLevel > bestLevel ? current : best;
-        }, null);
+    const result = person.filter(p => {
+        const isDesigner = p.personal.specializationId === designer.id;
+        const hasFigma = p.skills.some(skill => skill.name.toLowerCase() === 'figma');
+        return isDesigner && hasFigma
+    });
+    result.forEach(p => {
+        console.log(getInfo.call(p.personal));
+    });
 }
 
-function getTeam() {
-    const designer = getBestBySkill('designer', 'Figma');
-    const frontend = getBestBySkill('frontend', 'Angular');
-    const backend = getBestBySkill('backend', 'Go');
-
-    if (!designer || !frontend || !backend) {
-        console.warn('Не удалось собрать всю команду');
-        return;
-    }
-
-    console.log('Команда проекта:');
-    console.log(getInfo.call(designer));
-    console.log(getInfo.call(frontend));
-    console.log(getInfo.call(backend));
+// 4
+function findReactDev() {
+    const frontend = specializations.find(item => item.name === 'frontend');
+    const result = person.find(p => {
+        const isReact = p.skills.some(skill => skill.name.toLowerCase() === 'react');
+        const isFrontend = p.personal.specializationId === frontend.id;
+        return isFrontend && isReact;
+    });
+    console.log(getInfo.call(result.personal));
 }
 
+// 5
+function age18() {
+    const result = person.every(item => {
+        let dateParts = item.personal.birthday.split('.');
+        let birthDate = new Date(+dateParts[2], +dateParts[1] - 1, +dateParts[0]);
 
+        let currentDate = new Date();
+        let age = currentDate.getFullYear() - birthDate.getFullYear();
 
+        return age >= 18;
+    });
+    console.log(result);
+}
 
+// 6
+function getBackendDev() {
+    let moscow = cities.find(item => item.name.toLowerCase() === 'москва');
+    let backend = specializations.find(s => s.name.toLowerCase() === 'backend');
 
+    const result = person.filter(p => {
+        const isBackend = p.personal.specializationId === backend.id;
+        const isMoscow = p.personal.locationId === moscow.id;
 
+        const fullTime = p.request.some(r => {
+            return r.name.toLowerCase() === 'тип занятости' && r.value.toLowerCase() === 'полная';
+        });
 
+        return isBackend && isMoscow && fullTime;
+    }).sort((a, b) => {
+        const salaryA = a.request.find(item => item.name.toLowerCase() === 'зарплата').value;
+        const salaryB = b.request.find(item => item.name.toLowerCase() === 'зарплата').value;
+
+        return salaryA - salaryB;
+    });
+    console.log(result);
+}
+
+// 7
+function getDesigners() {
+    const designer = specializations.find(s => s.name.toLowerCase() === 'designer');
+
+    const result = person.filter(p => {
+        const isDesigner = p.personal.specializationId === designer.id;
+        const figmaSkill = p.skills.find(skill => skill.name.toLowerCase() === 'figma');
+        const psSkill = p.skills.find(skill => skill.name.toLowerCase() === 'photoshop');
+
+        const highSkillFigma = figmaSkill && figmaSkill.level >= 6;
+        const highSkillPs = psSkill && psSkill.level >= 6;
+
+        return isDesigner && highSkillFigma && highSkillPs;
+    });
+
+    result.forEach(item => {
+        console.log(getInfo.call(item.personal));
+    });
+}
+
+// 8
+function getBestSkills(specName, skillName) {
+    const spec = specializations.find(s => s.name.toLowerCase() === specName.toLowerCase());
+
+    return person.filter(p => p.personal.specializationId === spec.id).sort((a, b) => {
+        const skillA = a.skills.find(skill => skill.name.toLowerCase() === skillName.toLowerCase());
+        const skillB = b.skills.find(skill => skill.name.toLowerCase() === skillName.toLowerCase());
+
+        const levelA = skillA ? skillA.level : 0;
+        const levelB = skillB ? skillB.level : 0;
+
+        return levelB - levelA;
+    })[0];
+}
+
+function makeTeam() {
+    const bestDesigner = getBestSkills('designer', 'Figma');
+    const bestFrontend = getBestSkills('frontend', 'Angular');
+    const bestBackend = getBestSkills('backend', 'Go');
+
+    console.log(getInfo.call(bestDesigner.personal));
+    console.log(getInfo.call(bestFrontend.personal));
+    console.log(getInfo.call(bestBackend.personal));
+}
